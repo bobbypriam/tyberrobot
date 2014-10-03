@@ -1,6 +1,8 @@
 package tyber.environment;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import aima.core.util.datastructure.XYLocation;
@@ -59,7 +61,7 @@ public class TyberRobotBoard {
   }
 
   public void move(XYLocation element, int direction) {
-    XYLocation to = getDirection(element, direction);
+    XYLocation to = getFinalLocation(element, direction);
 
     if (element == robotOne)
       robotOne = to;
@@ -67,12 +69,12 @@ public class TyberRobotBoard {
       robotTwo = to;
     else {
       removeDust(element);
-      if (!dusts.contains(to))
+      if (!dusts.contains(to) && !pans.contains(to))
         putElement(to, DUST);
     }
   }
 
-  public XYLocation getDirection(XYLocation element, int direction) {
+  public XYLocation getFinalLocation(XYLocation element, int direction) {
     XYLocation to = null;
     switch (direction) {
       case UP: to = element.left(); break;
@@ -81,6 +83,17 @@ public class TyberRobotBoard {
       case RIGHT: to = element.down(); break;
     }
     return to;
+  }
+
+  public List<XYLocation> getRobotSurroundings(XYLocation robot) {
+    List<XYLocation> surroundings = new ArrayList<XYLocation>();
+
+    surroundings.add(getFinalLocation(robot, UP));
+    surroundings.add(getFinalLocation(robot, DOWN));
+    surroundings.add(getFinalLocation(robot, LEFT));
+    surroundings.add(getFinalLocation(robot, RIGHT));
+
+    return surroundings;
   }
 
   public void removeDust(XYLocation loc) {

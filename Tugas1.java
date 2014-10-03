@@ -4,10 +4,13 @@ import java.io.IOException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
 
 import tyber.environment.TyberRobotBoard;
+
+import aima.core.util.datastructure.XYLocation;
 
 public class Tugas1 {
   public static void main(String[] args) throws IOException {
@@ -58,10 +61,23 @@ public class Tugas1 {
         token = new StringTokenizer(in.readLine());
         int x = Integer.parseInt(token.nextToken());
         int y = Integer.parseInt(token.nextToken());
-        int type = (i < H) ? TyberRobotBoard.DUST : (i < K) ? TyberRobotBoard.PAN : TyberRobotBoard.OBSTACLE;
+        int type = (i < H) ? TyberRobotBoard.PAN : (i < K) ? TyberRobotBoard.DUST : TyberRobotBoard.OBSTACLE;
         board.putElement(x, y, type);
         i++;
       }
+
+      System.out.println("Finished: " + board.allDustIsInPan());
+
+      while(!board.allDustIsInPan()) {
+        ArrayList<XYLocation> list = new ArrayList<XYLocation>();
+        for (XYLocation loc : board.getDusts())
+          list.add(loc);
+        for (XYLocation loc : list)
+          board.move(loc, TyberRobotBoard.LEFT);
+        board.print();
+      }
+
+      System.out.println("Finished: " + board.allDustIsInPan());
 
       board.print();
     } catch (NoSuchElementException e) {
