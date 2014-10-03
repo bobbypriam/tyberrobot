@@ -17,8 +17,10 @@ public class TyberRobotBoard {
 
   public static final int UP = 0;
   public static final int DOWN = 1;
-  public static final int RIGHT = 2;
-  public static final int LEFT = 3;
+  public static final int LEFT = 2;
+  public static final int RIGHT = 3;
+
+  public static final String[] DIRECTIONS = { "U", "D", "L", "R" };
 
   private int n;
   private int m;
@@ -39,9 +41,13 @@ public class TyberRobotBoard {
     obstacles = new LinkedHashSet<XYLocation>();
   }
 
-  public void putRobots(int x1, int y1, int x2, int y2) {
-    robotOne = new XYLocation(x1, y1);
-    robotTwo = new XYLocation(x2, y2);
+  public TyberRobotBoard copyWithoutRobotsAndDusts(TyberRobotBoard board) {
+    TyberRobotBoard copy = new TyberRobotBoard(board.getN(), board.getM());
+
+    copy.pans = board.pans;
+    copy.obstacles = board.obstacles;
+
+    return copy;
   }
 
   public void putElement(XYLocation loc, int type) {
@@ -50,9 +56,11 @@ public class TyberRobotBoard {
 
   public void putElement(int x, int y, int type) {
     switch(type) {
-      case DUST     : dusts.add(new XYLocation(x, y)); break;
-      case PAN      : pans.add(new XYLocation(x, y)); break;
-      case OBSTACLE : obstacles.add(new XYLocation(x, y)); break;
+      case ROBOT_ONE  : robotOne = new XYLocation(x, y); break;
+      case ROBOT_TWO  : robotTwo = new XYLocation(x, y); break;
+      case DUST       : dusts.add(new XYLocation(x, y)); break;
+      case PAN        : pans.add(new XYLocation(x, y)); break;
+      case OBSTACLE   : obstacles.add(new XYLocation(x, y)); break;
     }
   }
 
@@ -96,6 +104,15 @@ public class TyberRobotBoard {
     return surroundings;
   }
 
+  public String getStringFromRelativeLocation(XYLocation a, XYLocation b) {
+    if (b.equals(getFinalLocation(a, UP)))          return STRING_UP;
+    else if (b.equals(getFinalLocation(a, DOWN)))   return STRING_DOWN;
+    else if (b.equals(getFinalLocation(a, LEFT)))   return STRING_LEFT;
+    else if (b.equals(getFinalLocation(a, RIGHT)))  return STRING_RIGHT;
+
+    return null;
+  }
+
   public void removeDust(XYLocation loc) {
     for (XYLocation dust : dusts)
       if (dust.equals(loc)) {
@@ -104,8 +121,19 @@ public class TyberRobotBoard {
       }
   }
 
-  public boolean isValidMove(XYLocation loc) {
-    return isInBoard(loc) && isNotObstacle(loc);
+  public boolean canMove(XYLocation from, XYLocation to) {
+    return isBeside(from, to) && isInBoard(to) && !isObstacle(to) &&
+           // if moving dust, cannot be the same place as robot, or
+           ((!isRobot(from) && !isRobot(to)) ||
+           // if moving robot, cannot be the same place as dust
+           !isDust(to));
+  }
+
+  public boolean isBeside(XYLocation a, XYLocation b) {
+    return a.equals(b.up()) ||
+           a.equals(b.down()) ||
+           a.equals(b.left()) ||
+           a.equals(b.right());
   }
 
   private boolean isInBoard(XYLocation loc) {
@@ -113,11 +141,22 @@ public class TyberRobotBoard {
            loc.getYCoOrdinate() > 0 && loc.getYCoOrdinate() <= n;
   }
 
-  private boolean isNotObstacle(XYLocation loc) {
+  private boolean isObstacle(XYLocation loc) {
     for (XYLocation obstacle : obstacles)
       if (obstacle.equals(loc))
-        return false;
-    return true;
+        return true;
+    return false;
+  }
+
+  private boolean isRobot(XYLocation loc) {
+    return loc.equals(robotOne) || loc.equals(robotTwo);
+  }
+
+  private boolean isDust(XYLocation loc) {
+    for (XYLocation dust : dusts)
+      if (dust.equals(loc))
+        return true;
+    return false;
   }
 
   public int              getN()          { return n; }

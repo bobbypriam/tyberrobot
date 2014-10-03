@@ -47,7 +47,8 @@ public class Tugas1 {
       int y1 = Integer.parseInt(token.nextToken());
       int x2 = Integer.parseInt(token.nextToken());
       int y2 = Integer.parseInt(token.nextToken());
-      board.putRobots(x1, y1, x2, y2);
+      board.putElement(x1, y1, TyberRobotBoard.ROBOT_ONE);
+      board.putElement(x2, y2, TyberRobotBoard.ROBOT_TWO);
 
       // Pan, dust, and obstacle numbers
       token = new StringTokenizer(in.readLine());
