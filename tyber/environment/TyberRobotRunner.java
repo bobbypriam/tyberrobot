@@ -106,6 +106,7 @@ public class TyberRobotRunner {
       String output = "";
       output += getPathCost(agent.getInstrumentation()) + "\n";
       output += getActionNames(agent.getActions());
+      System.out.println(getNumberOfNodesExpanded(agent.getInstrumentation()));
       return output;
     } catch (Exception e) {
       e.printStackTrace();
@@ -124,6 +125,7 @@ public class TyberRobotRunner {
       String output = "";
       output += getPathCost(agent.getInstrumentation()) + "\n";
       output += getActionNames(agent.getActions());
+      System.out.println(getNumberOfNodesExpanded(agent.getInstrumentation()));
       return output;
     } catch (Exception e) {
       e.printStackTrace();
@@ -142,6 +144,7 @@ public class TyberRobotRunner {
       String output = "";
       output += getPathCost(agent.getInstrumentation()) + "\n";
       output += getActionNames(agent.getActions());
+      System.out.println(getNumberOfNodesExpanded(agent.getInstrumentation()));
       return output;
     } catch (Exception e) {
       e.printStackTrace();
@@ -176,6 +179,17 @@ public class TyberRobotRunner {
       String key = (String) keys.next();
       if (key.equals("pathCost"))
         res = "" + (int) Double.parseDouble(properties.getProperty(key));
+    }
+    return res;
+  }
+
+  private String getNumberOfNodesExpanded(Properties properties) {
+    String res = "";
+    Iterator<Object> keys = properties.keySet().iterator();
+    while (keys.hasNext()) {
+      String key = (String) keys.next();
+      if (key.equals("nodesExpanded"))
+        res = "" + Integer.parseInt(properties.getProperty(key));
     }
     return res;
   }

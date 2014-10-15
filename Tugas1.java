@@ -70,7 +70,7 @@ public class Tugas1 {
       }
       
       // For debug purposes.
-      board.print();
+      // board.print();
 
       TyberRobotRunner runner = new TyberRobotRunner(board);
       int strategy = strategyString.equals("ids") ? TyberRobotRunner.IDS :
@@ -82,8 +82,8 @@ public class Tugas1 {
         output = runner.run(strategy);
       
       // For debug purposes.
-      System.out.println();
-      System.out.println(output);
+      // System.out.println();
+      // System.out.println(output);
     } catch (NoSuchElementException e) {
       System.err.println("Error in the input file \'" + inputFilename + "\'. Please check again.");
       e.printStackTrace();
