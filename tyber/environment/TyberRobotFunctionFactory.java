@@ -1,6 +1,8 @@
 package tyber.environment;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -35,12 +37,35 @@ public class TyberRobotFunctionFactory {
 
       XYLocation robotOne = board.getRobotOne();
       XYLocation robotTwo = board.getRobotTwo();
-      List<XYLocation> robotOneSurroundings = board.getRobotSurroundings(robotOne);
-      List<XYLocation> robotTwoSurroundings = board.getRobotSurroundings(robotTwo);
 
-      Set<XYLocation> dusts = board.getDusts();
-      for (XYLocation dust : dusts)
-        if (isBeside(robotOne, dust))
+      ArrayList<String> resOne = new ArrayList<String>();
+      ArrayList<String> resTwo = new ArrayList<String>();
+
+      Set<XYLocation> disabledLocations = new LinkedHashSet<XYLocation>();
+
+      XYLocation[] robots = { robotOne, robotTwo };
+
+      for (XYLocation robot : robots) {
+        ArrayList<String> res = (robot == robotOne) ? resOne : resTwo;
+        for (XYLocation dust : board.getDustsAroundRobot(robot))
+          for (XYLocation dustAdj : board.getElementSurroundings(dust))
+            if (board.canMove(dust, dustAdj)) {
+              res.add(board.getStringFromRelativeLocation(robot, dust) +
+                      board.getStringFromRelativeLocation(dust, dustAdj));
+              disabledLocations.add(dustAdj);
+            }
+      }
+
+      for (XYLocation robot : robots) {
+        ArrayList<String> res = (robot == robotOne) ? resOne : resTwo;
+        for (XYLocation robotAdj : board.getElementSurroundings(robot))
+          if (board.canMove(robot, robotAdj) && !disabledLocations.contains(robotAdj))
+              res.add(board.getStringFromRelativeLocation(robot, robotAdj));
+      }
+
+      for (String one : resOne)
+        for (String two : resTwo)
+          actions.add(new RobotAction(one + "#" + two));
 
       return actions;
     }
@@ -51,15 +76,61 @@ public class TyberRobotFunctionFactory {
       if (a instanceof RobotAction) {
         RobotAction ra = (RobotAction) a;
         TyberRobotBoard board = (TyberRobotBoard) s;
-        TyberRobotBoard newBoard = new TyberRobotBoard(board);
+        TyberRobotBoard newBoard = board.copyWithoutRobotsAndDusts();
 
         XYLocation robotOne = board.getRobotOne();
         XYLocation robotTwo = board.getRobotTwo();
+        XYLocation[] robots = { robotOne, robotTwo };
 
-        StringTokenizer tok = new StringTokenizer(ra.getName());
+        StringTokenizer tok = new StringTokenizer(ra.getName(), RobotAction.DELIMITER);
 
         String robotOneAction = tok.nextToken();
         String robotTwoAction = tok.nextToken();
+
+        List<XYLocation> removedDusts = new ArrayList<XYLocation>();
+
+        // Handle sweep actions.
+        for (XYLocation robot : robots) {
+          String action = (robot == robotOne) ? robotOneAction : robotTwoAction;
+
+          XYLocation oldDust = null;
+          XYLocation newDust = null;
+          if (action.equals(RobotAction.SWEEP_UP_UP))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.UP)), TyberRobotBoard.UP);
+          else if (action.equals(RobotAction.SWEEP_UP_LEFT))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.UP)), TyberRobotBoard.LEFT);
+          else if (action.equals(RobotAction.SWEEP_UP_RIGHT))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.UP)), TyberRobotBoard.RIGHT);
+          else if (action.equals(RobotAction.SWEEP_DOWN_DOWN))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.DOWN)), TyberRobotBoard.DOWN);
+          else if (action.equals(RobotAction.SWEEP_DOWN_LEFT))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.DOWN)), TyberRobotBoard.LEFT);
+          else if (action.equals(RobotAction.SWEEP_DOWN_RIGHT))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.DOWN)), TyberRobotBoard.RIGHT);
+          else if (action.equals(RobotAction.SWEEP_LEFT_UP))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.LEFT)), TyberRobotBoard.UP);
+          else if (action.equals(RobotAction.SWEEP_LEFT_DOWN))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.LEFT)), TyberRobotBoard.DOWN);
+          else if (action.equals(RobotAction.SWEEP_LEFT_LEFT))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.LEFT)), TyberRobotBoard.LEFT);
+          else if (action.equals(RobotAction.SWEEP_RIGHT_UP))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.RIGHT)), TyberRobotBoard.UP);
+          else if (action.equals(RobotAction.SWEEP_RIGHT_DOWN))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.RIGHT)), TyberRobotBoard.DOWN);
+          else if (action.equals(RobotAction.SWEEP_RIGHT_RIGHT))
+            newDust = board.getFinalLocation((oldDust = board.getFinalLocation(robot, TyberRobotBoard.RIGHT)), TyberRobotBoard.RIGHT);
+
+          if (oldDust != null)
+            removedDusts.add(oldDust);
+          if (newDust != null)
+            newBoard.putElement(newDust, TyberRobotBoard.DUST);
+        }
+
+        for (XYLocation dust : board.getDusts())
+          if (!newBoard.getDusts().contains(dust) && !removedDusts.contains(dust))
+            newBoard.putElement(dust, TyberRobotBoard. DUST);
+
+        newBoard.cleanPan();
 
         // Handle move actions.
         XYLocation newRobotOne = robotOne;
@@ -86,6 +157,17 @@ public class TyberRobotFunctionFactory {
         // Place robots in new positions.
         newBoard.putElement(newRobotOne, TyberRobotBoard.ROBOT_ONE);
         newBoard.putElement(newRobotTwo, TyberRobotBoard.ROBOT_TWO);
+
+        // TyberRobotGoalTest test = new TyberRobotGoalTest();
+        // System.out.print("A: " + robotOneAction + "#" + robotTwoAction);
+        // System.out.print(", D: " + newBoard.getNumberOfDusts());
+        // System.out.println(", G: " + test.isGoalState(newBoard));
+        // newBoard.print();
+        // System.out.println();
+
+        // try { 
+        //   Thread.sleep(2000);
+        // } catch (Exception e) {}
 
         s = newBoard;
       }

@@ -25,6 +25,8 @@ public class RobotAction extends DynamicAction {
   public static final String SWEEP_RIGHT_DOWN = "RD";
   public static final String SWEEP_RIGHT_RIGHT = "RR";
 
+  public static final String DELIMITER = "#";
+
   /**
    * Creates a robot action.
    */

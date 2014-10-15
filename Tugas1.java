@@ -9,8 +9,9 @@ import java.util.StringTokenizer;
 import java.util.NoSuchElementException;
 
 import tyber.environment.TyberRobotBoard;
+import tyber.environment.TyberRobotRunner;
 
-import aima.core.util.datastructure.XYLocation;
+// import aima.core.util.datastructure.XYLocation;
 
 public class Tugas1 {
   public static void main(String[] args) throws IOException {
@@ -20,7 +21,7 @@ public class Tugas1 {
       System.exit(1);
     }
 
-    String strategy = args[0];
+    String strategyString = args[0];
     String inputFilename = args[1];
     String outputFilename = args[2];
 
@@ -33,6 +34,7 @@ public class Tugas1 {
 
     BufferedReader in = new BufferedReader(new FileReader(inputFile.getAbsoluteFile()));
     StringTokenizer token;
+    String output = "";
 
     try {
       // Board initialization.
@@ -66,21 +68,22 @@ public class Tugas1 {
         board.putElement(x, y, type);
         i++;
       }
-
-      System.out.println("Finished: " + board.allDustIsInPan());
-
-      while(!board.allDustIsInPan()) {
-        ArrayList<XYLocation> list = new ArrayList<XYLocation>();
-        for (XYLocation loc : board.getDusts())
-          list.add(loc);
-        for (XYLocation loc : list)
-          board.move(loc, TyberRobotBoard.LEFT);
-        board.print();
-      }
-
-      System.out.println("Finished: " + board.allDustIsInPan());
-
+      
+      // For debug purposes.
       board.print();
+
+      TyberRobotRunner runner = new TyberRobotRunner(board);
+      int strategy = strategyString.equals("ids") ? TyberRobotRunner.IDS :
+                     strategyString.equals("astar1") ? TyberRobotRunner.ASTAR1 :
+                     TyberRobotRunner.ASTAR2;
+      if (!runner.hasSolution())
+        output = "TIDAK ADA SOLUSI";
+      else
+        output = runner.run(strategy);
+      
+      // For debug purposes.
+      System.out.println();
+      System.out.println(output);
     } catch (NoSuchElementException e) {
       System.err.println("Error in the input file \'" + inputFilename + "\'. Please check again.");
       e.printStackTrace();
@@ -89,17 +92,13 @@ public class Tugas1 {
 
     in.close();
 
-    /* File outputFile = new File(outputFilename);
+    File outputFile = new File(outputFilename);
 
     if (!outputFile.exists())
       outputFile.createNewFile();
 
     BufferedWriter out = new BufferedWriter(new FileWriter(outputFile.getAbsoluteFile()));
-
-    // WRITE HERE
-
-    // END OF WRITE
-
-    out.close(); */
+    out.write(output +"\n");
+    out.close(); 
   }
 }

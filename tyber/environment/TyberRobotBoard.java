@@ -41,11 +41,11 @@ public class TyberRobotBoard {
     obstacles = new LinkedHashSet<XYLocation>();
   }
 
-  public TyberRobotBoard copyWithoutRobotsAndDusts(TyberRobotBoard board) {
-    TyberRobotBoard copy = new TyberRobotBoard(board.getN(), board.getM());
+  public TyberRobotBoard copyWithoutRobotsAndDusts() {
+    TyberRobotBoard copy = new TyberRobotBoard(n, m);
 
-    copy.pans = board.pans;
-    copy.obstacles = board.obstacles;
+    copy.pans = pans;
+    copy.obstacles = obstacles;
 
     return copy;
   }
@@ -68,6 +68,10 @@ public class TyberRobotBoard {
     return dusts.size() == 0;
   }
 
+  public int getNumberOfDusts() {
+    return dusts.size();
+  }
+
   public void move(XYLocation element, int direction) {
     XYLocation to = getFinalLocation(element, direction);
 
@@ -77,7 +81,7 @@ public class TyberRobotBoard {
       robotTwo = to;
     else {
       removeDust(element);
-      if (!dusts.contains(to) && !pans.contains(to))
+      if (!pans.contains(to))
         putElement(to, DUST);
     }
   }
@@ -93,22 +97,34 @@ public class TyberRobotBoard {
     return to;
   }
 
-  public List<XYLocation> getRobotSurroundings(XYLocation robot) {
+  public List<XYLocation> getElementSurroundings(XYLocation element) {
     List<XYLocation> surroundings = new ArrayList<XYLocation>();
 
-    surroundings.add(getFinalLocation(robot, UP));
-    surroundings.add(getFinalLocation(robot, DOWN));
-    surroundings.add(getFinalLocation(robot, LEFT));
-    surroundings.add(getFinalLocation(robot, RIGHT));
+    for (int dir = UP; dir <= RIGHT; dir++) {
+      XYLocation dest = getFinalLocation(element, dir);
+      if (isValid(dest))
+        surroundings.add(dest);
+    }
 
     return surroundings;
   }
 
+  public List<XYLocation> getDustsAroundRobot(XYLocation robot) {
+    List<XYLocation> surroundings = getElementSurroundings(robot);
+    List<XYLocation> res = new ArrayList<XYLocation>();
+    
+    for (XYLocation loc : surroundings)
+      if (isDust(loc))
+        res.add(loc);
+    
+    return res;
+  }
+
   public String getStringFromRelativeLocation(XYLocation a, XYLocation b) {
-    if (b.equals(getFinalLocation(a, UP)))          return STRING_UP;
-    else if (b.equals(getFinalLocation(a, DOWN)))   return STRING_DOWN;
-    else if (b.equals(getFinalLocation(a, LEFT)))   return STRING_LEFT;
-    else if (b.equals(getFinalLocation(a, RIGHT)))  return STRING_RIGHT;
+    if (b.equals(getFinalLocation(a, UP)))          return DIRECTIONS[UP];
+    else if (b.equals(getFinalLocation(a, DOWN)))   return DIRECTIONS[DOWN];
+    else if (b.equals(getFinalLocation(a, LEFT)))   return DIRECTIONS[LEFT];
+    else if (b.equals(getFinalLocation(a, RIGHT)))  return DIRECTIONS[RIGHT];
 
     return null;
   }
@@ -121,24 +137,30 @@ public class TyberRobotBoard {
       }
   }
 
-  public boolean canMove(XYLocation from, XYLocation to) {
-    return isBeside(from, to) && isInBoard(to) && !isObstacle(to) &&
-           // if moving dust, cannot be the same place as robot, or
-           ((!isRobot(from) && !isRobot(to)) ||
-           // if moving robot, cannot be the same place as dust
-           !isDust(to));
+  public void cleanPan() {
+    ArrayList<XYLocation> toBeRemoved = new ArrayList<XYLocation>();
+    for (XYLocation dust : dusts)
+      if (pans.contains(dust))
+        toBeRemoved.add(dust);
+    for (XYLocation dust : toBeRemoved)
+      dusts.remove(dust);
   }
 
-  public boolean isBeside(XYLocation a, XYLocation b) {
-    return a.equals(b.up()) ||
-           a.equals(b.down()) ||
-           a.equals(b.left()) ||
-           a.equals(b.right());
+  public boolean canMove(XYLocation from, XYLocation to) {
+    return isValid(to) &&
+           // if moving robot, cannot move to dust, or
+           ((isRobot(from) && !isDust(to) && !isPan(to)) ||
+           // if moving dust, cannot move to robot
+           (isDust(from) && !isRobot(to)));
+  }
+
+  public boolean isValid(XYLocation loc) {
+    return isInBoard(loc) && !isObstacle(loc);
   }
 
   private boolean isInBoard(XYLocation loc) {
-    return loc.getXCoOrdinate() > 0 && loc.getXCoOrdinate() <= m &&
-           loc.getYCoOrdinate() > 0 && loc.getYCoOrdinate() <= n;
+    return loc.getXCoOrdinate() > 0 && loc.getXCoOrdinate() <= n &&
+           loc.getYCoOrdinate() > 0 && loc.getYCoOrdinate() <= m;
   }
 
   private boolean isObstacle(XYLocation loc) {
@@ -159,6 +181,13 @@ public class TyberRobotBoard {
     return false;
   }
 
+  private boolean isPan(XYLocation loc) {
+    for (XYLocation pan : pans)
+      if (pan.equals(loc))
+        return true;
+    return false;
+  }
+
   public int              getN()          { return n; }
   public int              getM()          { return m; }
   public XYLocation       getRobotOne()   { return robotOne; }
@@ -168,13 +197,18 @@ public class TyberRobotBoard {
   public Set<XYLocation>  getObstacles()  { return obstacles; }
 
   public void print() {
-    System.out.println("---MAP---");
+    System.out.print("  ");
+    for (int i = 1; i <= m; i++)
+      System.out.print(i + " ");
+    System.out.println();
+
     for (int i = 1; i <= n; i++) {
-      for (int j = 1; j <= m; j++)
+      System.out.print(i + " ");
+      for (int j = 1; j <= m; j++) {
         if (robotOne.equals(new XYLocation(i, j)))
-          System.out.print('1');
+          System.out.print('A' + " ");
         else if (robotTwo.equals(new XYLocation(i, j)))
-          System.out.print('2');
+          System.out.print('B' + " ");
         else {
           char c = '.';
 
@@ -190,15 +224,49 @@ public class TyberRobotBoard {
             if (loc.equals(new XYLocation(i, j)))
               c = 'O';
 
-          System.out.print(c);
+          System.out.print(c + " ");
         }
+      }
       System.out.println();
     }
-    System.out.println();
-    System.out.println("ONE: " + robotOne);
-    System.out.println("TWO: " + robotTwo);
-    System.out.println("Dusts: " + dusts);
-    System.out.println("Pans: " + pans);
-    System.out.println("Obstacles: " + obstacles);
   }
+
+  public void getDoableActions() {
+      ArrayList<String> resOne = new ArrayList<String>();
+      ArrayList<String> resTwo = new ArrayList<String>();
+
+      Set<XYLocation> disabledLocations = new LinkedHashSet<XYLocation>();
+
+      XYLocation[] robots = { robotOne, robotTwo };
+
+      for (XYLocation robot : robots) {
+        ArrayList<String> res = (robot == robotOne) ? resOne : resTwo;
+        for (XYLocation dust : getDustsAroundRobot(robot))
+          for (XYLocation dustAdj : getElementSurroundings(dust))
+            if (canMove(dust, dustAdj)) {
+              res.add(getStringFromRelativeLocation(robot, dust) +
+                      getStringFromRelativeLocation(dust, dustAdj));
+              disabledLocations.add(dustAdj);
+            }
+      }
+
+      for (XYLocation robot : robots) {
+        ArrayList<String> res = (robot == robotOne) ? resOne : resTwo;
+        for (XYLocation robotAdj : getElementSurroundings(robot))
+          if (canMove(robot, robotAdj) && !disabledLocations.contains(robotAdj))
+              res.add(getStringFromRelativeLocation(robot, robotAdj));
+      }
+
+      System.out.println("Disabled locations: " + disabledLocations);
+      System.out.println("Result one: " + resOne);
+      System.out.println("Result two: " + resTwo);
+
+      Set<String> actions = new LinkedHashSet<String>();
+
+      for (String one : resOne)
+        for (String two : resTwo)
+          actions.add(one + "#" + two);
+
+      System.out.println("Actions: " + actions);
+    }
 }
