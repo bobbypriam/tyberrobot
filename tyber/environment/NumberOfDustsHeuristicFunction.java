@@ -2,11 +2,11 @@ package tyber.environment;
 
 import aima.core.search.framework.HeuristicFunction;
 
-public class NumberOfDustsDividedByTwoHeuristicFunction implements HeuristicFunction {
+public class NumberOfDustsHeuristicFunction implements HeuristicFunction {
   
   public double h(Object state) {
     TyberRobotBoard board = (TyberRobotBoard) state;
-    return board.getNumberOfDusts() / 2;
+    return board.getNumberOfDusts();
   }
 
 }
