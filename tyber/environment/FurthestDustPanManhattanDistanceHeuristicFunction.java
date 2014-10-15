@@ -1,21 +1,30 @@
 package tyber.environment;
 
+import java.util.ArrayList;
+
 import aima.core.search.framework.HeuristicFunction;
 import aima.core.util.datastructure.XYLocation;
 
-public class NearestDustPanManhattanDistanceHeuristicFunction implements HeuristicFunction {
+public class FurthestDustPanManhattanDistanceHeuristicFunction implements HeuristicFunction {
   
   public double h(Object state) {
     TyberRobotBoard board = (TyberRobotBoard) state;
-    double minDistance = Double.MAX_VALUE;
+    ArrayList<Double> distances = new ArrayList<Double>();
 
-    for (XYLocation dust : board.getDusts())
+    for (XYLocation dust : board.getDusts()) {
+      double minDistance = Double.MAX_VALUE;
     	for (XYLocation pan : board.getPans()) {
         double distance = computeManhattanDistance(dust, pan);
         minDistance = (minDistance > distance) ? distance : minDistance;
       }
+      distances.add(minDistance);
+    }
 
-    return minDistance;
+    double maxDistance = Double.MIN_VALUE;
+    for (Double d : distances)
+      maxDistance = (d > maxDistance) ? d : maxDistance;
+
+    return maxDistance;
   }
 
   private double computeManhattanDistance(XYLocation a, XYLocation b) {

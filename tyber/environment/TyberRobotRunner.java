@@ -137,7 +137,7 @@ public class TyberRobotRunner {
         .getActionsFunction(), TyberRobotFunctionFactory
         .getResultFunction(), new TyberRobotGoalTest());
       Search search = new AStarSearch(new TreeSearch(),
-        new NearestDustPanManhattanDistanceHeuristicFunction());
+        new FurthestDustPanManhattanDistanceHeuristicFunction());
       SearchAgent agent = new SearchAgent(problem, search);
       String output = "";
       output += getPathCost(agent.getInstrumentation()) + "\n";
