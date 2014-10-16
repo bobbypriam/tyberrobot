@@ -65,7 +65,7 @@ public class TyberRobotFunctionFactory {
 
       for (String one : resOne)
         for (String two : resTwo)
-          actions.add(new RobotAction(one + "#" + two));
+          actions.add(new RobotAction(one + RobotAction.DELIMITER + two));
 
       return actions;
     }
@@ -157,17 +157,6 @@ public class TyberRobotFunctionFactory {
         // Place robots in new positions.
         newBoard.putElement(newRobotOne, TyberRobotBoard.ROBOT_ONE);
         newBoard.putElement(newRobotTwo, TyberRobotBoard.ROBOT_TWO);
-
-        // TyberRobotGoalTest test = new TyberRobotGoalTest();
-        // System.out.print("A: " + robotOneAction + "#" + robotTwoAction);
-        // System.out.print(", D: " + newBoard.getNumberOfDusts());
-        // System.out.println(", G: " + test.isGoalState(newBoard));
-        // newBoard.print();
-        // System.out.println();
-
-        // try { 
-        //   Thread.sleep(2000);
-        // } catch (Exception e) {}
 
         s = newBoard;
       }
