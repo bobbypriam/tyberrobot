@@ -58,7 +58,7 @@ public class TyberRobotRunner {
 
     switch (strategy) {
       case IDS:
-        output = runIDSSearch();
+        output = runIDS();
         break;
       case ASTAR1:
         output = runAStar1Search();
@@ -151,7 +151,7 @@ public class TyberRobotRunner {
    *
    * @return the path cost and actions.
    */
-  private String runIDSSearch() {
+  private String runIDS() {
     try {
       Problem problem = new Problem(board, TyberRobotFunctionFactory
         .getActionsFunction(), TyberRobotFunctionFactory
