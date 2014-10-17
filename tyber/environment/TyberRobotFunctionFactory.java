@@ -171,23 +171,23 @@ public class TyberRobotFunctionFactory {
         XYLocation newRobotOne = robotOne;
         XYLocation newRobotTwo = robotTwo;
 
-        if (robotOneAction.equals(RobotAction.MOVE_UP))
-          newRobotOne = board.getFinalLocation(robotOne, TyberRobotBoard.UP);
-        else if (robotOneAction.equals(RobotAction.MOVE_DOWN))
-          newRobotOne = board.getFinalLocation(robotOne, TyberRobotBoard.DOWN);
-        else if (robotOneAction.equals(RobotAction.MOVE_LEFT))
-          newRobotOne = board.getFinalLocation(robotOne, TyberRobotBoard.LEFT);
-        else if (robotOneAction.equals(RobotAction.MOVE_RIGHT))
-          newRobotOne = board.getFinalLocation(robotOne, TyberRobotBoard.RIGHT);
+        for (XYLocation robot : robots) {
+          String action = (robot == robotOne) ? robotOneAction : robotTwoAction;
+          XYLocation newRobot = null;
 
-        if (robotTwoAction.equals(RobotAction.MOVE_UP))
-          newRobotTwo = board.getFinalLocation(robotTwo, TyberRobotBoard.UP);
-        else if (robotTwoAction.equals(RobotAction.MOVE_DOWN))
-          newRobotTwo = board.getFinalLocation(robotTwo, TyberRobotBoard.DOWN);
-        else if (robotTwoAction.equals(RobotAction.MOVE_LEFT))
-          newRobotTwo = board.getFinalLocation(robotTwo, TyberRobotBoard.LEFT);
-        else if (robotTwoAction.equals(RobotAction.MOVE_RIGHT))
-          newRobotTwo = board.getFinalLocation(robotTwo, TyberRobotBoard.RIGHT);
+          if (action.equals(RobotAction.MOVE_UP))
+            newRobot = board.getFinalLocation(robot, TyberRobotBoard.UP);
+          else if (action.equals(RobotAction.MOVE_DOWN))
+            newRobot = board.getFinalLocation(robot, TyberRobotBoard.DOWN);
+          else if (action.equals(RobotAction.MOVE_LEFT))
+            newRobot = board.getFinalLocation(robot, TyberRobotBoard.LEFT);
+          else if (action.equals(RobotAction.MOVE_RIGHT))
+            newRobot = board.getFinalLocation(robot, TyberRobotBoard.RIGHT);
+
+          if (newRobot != null)
+            if (robot == robotOne)  newRobotOne = newRobot;
+            else                    newRobotTwo = newRobot;
+        }
 
         // Place robots in new positions.
         newBoard.putElement(newRobotOne, TyberRobotBoard.ROBOT_ONE);
