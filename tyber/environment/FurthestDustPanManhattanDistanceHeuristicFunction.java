@@ -1,12 +1,18 @@
 package tyber.environment;
 
-import java.util.ArrayList;
-
 import aima.core.search.framework.HeuristicFunction;
 import aima.core.util.datastructure.XYLocation;
+import java.util.ArrayList;
 
+/**
+ * A class implementing the heuristic function that computes the manhattan distance
+ * of the dusts to the nearest pan and returns the biggest value.
+ *
+ * @author Widyanto Bagus Priambodo - 1206208315
+ */
 public class FurthestDustPanManhattanDistanceHeuristicFunction implements HeuristicFunction {
   
+  @Override
   public double h(Object state) {
     TyberRobotBoard board = (TyberRobotBoard) state;
     ArrayList<Double> distances = new ArrayList<Double>();

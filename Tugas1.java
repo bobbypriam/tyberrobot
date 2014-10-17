@@ -11,11 +11,21 @@ import java.util.NoSuchElementException;
 import tyber.environment.TyberRobotBoard;
 import tyber.environment.TyberRobotRunner;
 
-// import aima.core.util.datastructure.XYLocation;
-
+/**
+ * The main class of this program.
+ *
+ * @author Widyanto Bagus Priambodo - 1206208315
+ */
 public class Tugas1 {
+
+  /**
+   * Main method.
+   *
+   * @param args  The command line arguments of this program.
+   */
   public static void main(String[] args) throws IOException {
 
+    // Check for invalid input.
     if (args.length < 3) {
       System.out.println("Usage: java Tugas1 <strategy> <input> <output>");
       System.exit(1);
@@ -25,6 +35,7 @@ public class Tugas1 {
     String inputFilename = args[1];
     String outputFilename = args[2];
 
+    // Read input file.
     File inputFile = new File(inputFilename);
 
     if (!inputFile.exists()) {
@@ -72,14 +83,12 @@ public class Tugas1 {
       // For debug purposes.
       // board.print();
 
+      // Starts the search.
       TyberRobotRunner runner = new TyberRobotRunner(board);
       int strategy = strategyString.equals("ids") ? TyberRobotRunner.IDS :
                      strategyString.equals("astar1") ? TyberRobotRunner.ASTAR1 :
                      TyberRobotRunner.ASTAR2;
-      if (!runner.hasSolution())
-        output = "TIDAK ADA SOLUSI";
-      else
-        output = runner.run(strategy);
+      output = runner.run(strategy);
       
       // For debug purposes.
       // System.out.println();
@@ -92,6 +101,7 @@ public class Tugas1 {
 
     in.close();
 
+    // Write to output file.
     File outputFile = new File(outputFilename);
 
     if (!outputFile.exists())

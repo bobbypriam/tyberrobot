@@ -1,20 +1,33 @@
 package tyber.environment;
 
+import aima.core.agent.Action;
+import aima.core.search.framework.ActionsFunction;
+import aima.core.search.framework.ResultFunction;
+import aima.core.util.datastructure.XYLocation;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import aima.core.agent.Action;
-import aima.core.search.framework.ActionsFunction;
-import aima.core.search.framework.ResultFunction;
-import aima.core.util.datastructure.XYLocation;
-
+/**
+ * The function factory representing the successor function
+ * of the Tyber Robot Problem. This class has two inner classes
+ * that implements the ActionsFunction and ResultFunction.
+ *
+ * @author Widyanto Bagus Priambodo - 1206208315
+ */
 public class TyberRobotFunctionFactory {
+  
+  /** The functions */
   private static ActionsFunction _actionsFunction = null;
   private static ResultFunction _resultFunction = null;
 
+  /**
+   * Returns the actions function.
+   *
+   * @return the actions function.
+   */
   public static ActionsFunction getActionsFunction() {
     if (null == _actionsFunction) {
       _actionsFunction = new TRActionsFunction();
@@ -22,6 +35,11 @@ public class TyberRobotFunctionFactory {
     return _actionsFunction;
   }
 
+  /**
+   * Returns the result function.
+   *
+   * @return the result function.
+   */
   public static ResultFunction getResultFunction() {
     if (null == _resultFunction) {
       _resultFunction = new TRResultFunction();
@@ -29,7 +47,14 @@ public class TyberRobotFunctionFactory {
     return _resultFunction;
   }
   
+  /**
+   * Private inner class that implements the ActionsFunction.
+   *
+   * @author Widyanto Bagus Priambodo - 1206208315
+   */
   private static class TRActionsFunction implements ActionsFunction {
+
+    @Override
     public Set<Action> actions(Object state) {
       TyberRobotBoard board = (TyberRobotBoard) state;
 
@@ -45,6 +70,7 @@ public class TyberRobotFunctionFactory {
 
       XYLocation[] robots = { robotOne, robotTwo };
 
+      // Check for possible sweep moves.
       for (XYLocation robot : robots) {
         ArrayList<String> res = (robot == robotOne) ? resOne : resTwo;
         for (XYLocation dust : board.getDustsAroundRobot(robot))
@@ -56,6 +82,7 @@ public class TyberRobotFunctionFactory {
             }
       }
 
+      // Check for possible moves.
       for (XYLocation robot : robots) {
         ArrayList<String> res = (robot == robotOne) ? resOne : resTwo;
         for (XYLocation robotAdj : board.getElementSurroundings(robot))
@@ -63,6 +90,7 @@ public class TyberRobotFunctionFactory {
               res.add(board.getStringFromRelativeLocation(robot, robotAdj));
       }
 
+      // Combining the actions.
       for (String one : resOne)
         for (String two : resTwo)
           actions.add(new RobotAction(one + RobotAction.DELIMITER + two));
@@ -71,7 +99,14 @@ public class TyberRobotFunctionFactory {
     }
   }
 
+  /**
+   * Private inner class that implements the ResultFunction.
+   *
+   * @author Widyanto Bagus Priambodo - 1206208315
+   */
   private static class TRResultFunction implements ResultFunction {
+
+    @Override
     public Object result(Object s, Action a) {
       if (a instanceof RobotAction) {
         RobotAction ra = (RobotAction) a;
