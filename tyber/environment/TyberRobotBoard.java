@@ -298,12 +298,53 @@ public class TyberRobotBoard {
     return false;
   }
 
+  /**
+   * Returns the height of the board.
+   *
+   * @return the height;
+   */
   public int              getN()          { return n; }
+  
+/**
+   * Returns the width of the board.
+   *
+   * @return the width;
+   */
   public int              getM()          { return m; }
+  
+  /**
+   * Returns the position of robot one.
+   *
+   * @return the position of robot one;
+   */
   public XYLocation       getRobotOne()   { return robotOne; }
+  
+  /**
+   * Returns the position of robot two.
+   *
+   * @return the position of robot two;
+   */
   public XYLocation       getRobotTwo()   { return robotTwo; }
+  
+  /**
+   * Returns the set of positions of dusts.
+   *
+   * @return the set of positions of dusts;
+   */
   public Set<XYLocation>  getDusts()      { return dusts; }
+  
+  /**
+   * Returns the set of positions of pans.
+   *
+   * @return the set of positions of pans;
+   */
   public Set<XYLocation>  getPans()       { return pans; }
+  
+  /**
+   * Returns the set of positions of obstacles.
+   *
+   * @return the set of positions of obstacles;
+   */
   public Set<XYLocation>  getObstacles()  { return obstacles; }
 
   /**
