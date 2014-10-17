@@ -31,6 +31,12 @@ public class TyberRobotRunner {
   /** Constants for the second A* search strategy. */
   public static final int ASTAR2 = 2;
 
+  private static final char ROBOT     = 'R';
+  private static final char DUST      = 'D';
+  private static final char PAN       = 'P';
+  private static final char OBSTACLE  = 'O';
+  private static final char EMPTY     = '.';
+
   /** The initial board. */
   private TyberRobotBoard board;
 
@@ -83,28 +89,33 @@ public class TyberRobotRunner {
     for (int i = 0; i < board.getN(); i++)
       for (int j = 0; j < board.getM(); j++) {
         XYLocation now = new XYLocation(i+1, j+1);
-        char c = '.';
+        char c = EMPTY;
         
         if (now.equals(board.getRobotOne()) ||
             now.equals(board.getRobotTwo()))
-          c = 'R';
+          c = ROBOT;
 
         for (XYLocation loc : board.getDusts())
-          if (now.equals(loc)) c = 'D';
+          if (now.equals(loc)) c = DUST;
 
         for (XYLocation loc : board.getPans())
-          if (now.equals(loc)) c = 'P';
+          if (now.equals(loc)) c = PAN;
 
         for (XYLocation loc : board.getObstacles())
-          if (now.equals(loc)) c = 'O';
+          if (now.equals(loc)) c = OBSTACLE;
 
         map[i][j] = c;
       }
 
     boolean hasSolution = true;
     for (XYLocation dust : board.getDusts()) {
-      boolean[][] visited = new boolean[board.getN()][board.getM()];
-      hasSolution = checkForSolution(map, visited, dust.getXCoOrdinate() - 1, dust.getYCoOrdinate() - 1);
+      int x = dust.getXCoOrdinate() - 1;
+      int y = dust.getYCoOrdinate() - 1;
+
+      boolean hasPathToPan = checkForSolution(map, new boolean[board.getN()][board.getM()], x, y, PAN);
+      boolean hasPathToRobot = checkForSolution(map, new boolean[board.getN()][board.getM()], x, y, ROBOT);
+
+      hasSolution = hasPathToPan && hasPathToPan;
       if (!hasSolution) break;
     }
 
@@ -121,17 +132,20 @@ public class TyberRobotRunner {
    * @param y       The y coordinate of the current square.
    * @return true if there exists a way from dust to a pan.
    */
-  private boolean checkForSolution(char[][] map, boolean[][] visited, int x, int y) {
-    if (!isInBoard(map, x, y) || map[x][y] == 'O' || map[x][y] == 'R' || visited[x][y])
+  private boolean checkForSolution(char[][] map, boolean[][] visited, int x, int y, char goal) {
+    
+    char bound = (goal == PAN) ? ROBOT : PAN;
+    
+    if (!isInBoard(map, x, y) || map[x][y] == OBSTACLE || map[x][y] == bound || visited[x][y])
       return false;
 
-    if (map[x][y] == 'P')
+    if (map[x][y] == goal)
       return true;
 
     visited[x][y] = true;
 
-    return checkForSolution(map, visited, x, y-1) || checkForSolution(map, visited, x+1, y) ||
-           checkForSolution(map, visited, x, y+1) || checkForSolution(map, visited, x-1, y);
+    return checkForSolution(map, visited, x, y-1, goal) || checkForSolution(map, visited, x+1, y, goal) ||
+           checkForSolution(map, visited, x, y+1, goal) || checkForSolution(map, visited, x-1, y, goal);
   }
 
   /**
