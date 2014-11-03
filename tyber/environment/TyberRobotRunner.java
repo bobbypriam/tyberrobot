@@ -79,7 +79,7 @@ public class TyberRobotRunner {
   /**
    * Checks if the board has a solution. This method initializes a map
    * from the board and for each dust it checks if there exists a way
-   * from it to a pan.
+   * from it to a pan and a robot.
    *
    * @return true if the board has a solution.
    */
@@ -115,7 +115,7 @@ public class TyberRobotRunner {
       boolean hasPathToPan = checkForSolution(map, new boolean[board.getN()][board.getM()], x, y, PAN);
       boolean hasPathToRobot = checkForSolution(map, new boolean[board.getN()][board.getM()], x, y, ROBOT);
 
-      hasSolution = hasPathToPan && hasPathToPan;
+      hasSolution = hasPathToPan && hasPathToRobot;
       if (!hasSolution) break;
     }
 
@@ -124,19 +124,17 @@ public class TyberRobotRunner {
 
   /**
    * Recursively flood fills the map using DFS algorithm to check for a way
-   * from dust to a pan.
+   * from dust to a goal (can be PAN or ROBOT).
    *
    * @param map     The map to search.
    * @param visited A boolean array keeping track of visited squares.
    * @param x       The x coordinate of the current square.
    * @param y       The y coordinate of the current square.
-   * @return true if there exists a way from dust to a pan.
+   * @param goal    The goal (can be PAN or ROBOT)
+   * @return true if there exists a way from dust to the goal.
    */
   private boolean checkForSolution(char[][] map, boolean[][] visited, int x, int y, char goal) {
-    
-    char bound = (goal == PAN) ? ROBOT : PAN;
-    
-    if (!isInBoard(map, x, y) || map[x][y] == OBSTACLE || map[x][y] == bound || visited[x][y])
+    if (!isInBoard(map, x, y) || map[x][y] == OBSTACLE || visited[x][y])
       return false;
 
     if (map[x][y] == goal)
@@ -184,7 +182,7 @@ public class TyberRobotRunner {
   }
 
   /**
-   * Runs the A* search with the NumberOfDust heuristic.
+   * Runs the A* search with the NumberOfDustDividedByTwo heuristic.
    *
    * @return the path cost and actions.
    */
@@ -194,7 +192,7 @@ public class TyberRobotRunner {
         .getActionsFunction(), TyberRobotFunctionFactory
         .getResultFunction(), new TyberRobotGoalTest());
       Search search = new AStarSearch(new TreeSearch(),
-        new NumberOfDustsHeuristicFunction());
+        new NumberOfDustsDividedByTwoHeuristicFunction());
       SearchAgent agent = new SearchAgent(problem, search);
       String output = "";
       output += getPathCost(agent.getInstrumentation()) + "\n";
